@@ -107,7 +107,7 @@ func (b *queryBuilder) VisitEq(field Field, operands []Value) {
 			b.AppendSql(" IN (")
 			for i, op := range operands {
 				if i > 0 {
-					b.AppendSql("")
+					b.AppendSql(",")
 				}
 				b.AppendSql(b.VariablePlaceHolder)
 				b.AppendValue(op)

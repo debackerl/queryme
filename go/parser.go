@@ -211,7 +211,8 @@ func parsePredicate(s string) (p Predicate, n string) {
 
 	var f string
 	var ps []Predicate
-	var v interface{}
+	var vs []Value
+	var v Value
 
 	switch op {
 		case "not":
@@ -224,6 +225,11 @@ func parsePredicate(s string) (p Predicate, n string) {
 		case "or":
 			ps, n = parsePredicates(n)
 			p = Or(ps)
+		case "eq":
+			f, n = parseIdentifier(n)
+			n = parseLiteral(n, ",")
+			vs, n = parseValues(n)
+			p = Eq{Field(f), vs}
 		case "gt":
 			f, n = parseIdentifier(n)
 			n = parseLiteral(n, ",")
@@ -279,6 +285,27 @@ func parsePredicates(s string) (ps []Predicate, n string) {
 	return
 }
 
+func parseValues(s string) (vs []Value, n string) {
+	vs = make([]Value, 0, 4)
+
+	if len(s) > 0 && FirstCharClass(s) > 2 {
+		n = s
+		for {
+			var operand interface{}
+			operand, n = parseValue(n)
+			vs = append(vs, operand)
+
+			if len(n) > 0 && n[0] == ',' {
+				n = n[1:]
+			} else {
+				break
+			}
+		}
+	}
+
+	return
+}
+
 func parseString(s string) (v string, n string) {
 	if len(s) == 0 || s[0] != '\'' {
 		panic(StringExpected)
@@ -305,7 +332,7 @@ func parseString(s string) (v string, n string) {
 	return
 }
 
-func parseValue(s string) (v interface{}, n string) {
+func parseValue(s string) (v Value, n string) {
 	if len(s) == 0 {
 		panic(ValueExpected)
 	}

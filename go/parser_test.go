@@ -42,6 +42,10 @@ func TestParsePredicate(t *testing.T) {
 	assert.Equal(t, Fts{"title", "belgian chocolate"}, p)
 	assert.Equal(t, ",", n)
 
+	p, n = parsePredicate("eq(type,4,5),")
+	assert.Equal(t, Eq{"type", []Value{4.0, 5.0}}, p)
+	assert.Equal(t, ",", n)
+
 	p, n = parsePredicate("not(fts(title,'belgian chocolate'))")
 	assert.Equal(t, Not{Fts{"title", "belgian chocolate"}}, p)
 	assert.Equal(t, "", n)
