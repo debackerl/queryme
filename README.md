@@ -22,7 +22,8 @@ Once received by the server, the go library's ToSql function can check for any d
 
 ```go
 qs := NewFromURL(url)
-sql, values := ToSql(qs.Predicate("f"), []Field{"type","text","name","id"})
+allowed_fields := []Field{"type","text","name","id"}
+sql, values := ToSql(qs.Predicate("f"), allowed_fields)
 fmt.Println(sql)
 fmt.Println(values)
 ```
