@@ -1,6 +1,10 @@
-Structured language to embed complex queries in the query part of an URL.
+Structured language to embed complex queries in the query part of a URL.
 
-For example the following piece of JavaScript
+**This API is still unstable**, but many unit tests have been written already.
+
+## Example
+
+The following example JavaScript code:
 
 ```JavaScript
 var filter = QM.And(QM.Not(QM.Eq("type",[QM.String("foo"),QM.String("bar")])),QM.Fts("text","belgian chocolate"));
@@ -14,11 +18,11 @@ will generate the this query string
 ?f=and(not(eq(type,'foo','bar')),fts(text,'belgian chocolate'))&s=!rooms,price
 ```
 
-Once received by the server, the following piece of go code
+Once received by the server, the go library's ToSql function can check for any disallowed fields, and generate SQL and extract constants:
 
 ```go
 qs := NewFromURL(url)
-sql, values := ToSql(qs.Predicate("f"))
+sql, values := ToSql(qs.Predicate("f"), []Field{"type","text","name","id"})
 fmt.Println(sql)
 fmt.Println(values)
 ```
@@ -30,7 +34,33 @@ will print the following
 []interface{}{"foo", "bar", "belgian chocolate"}
 ```
 
-Formal specification:
+## Data Types
+
+The query language support all JSON data types with the addition of dates:
+
+* null value
+* boolean
+* numbers (double-precision and exact integers with up to 15 digits)
+* strings
+* dates (with millisecond precision)
+
+## Predicates
+
+*queryme* supports all the basic predicates:
+
+Name | Description
+---- | --------------------------------------
+not  | negation
+and  | conjunction
+or   | disjunction
+eq   | equality check with one or more values
+gt   | stricly greater
+ge   | greater or equal
+lt   | stricly less
+le   | less or equal
+fts  | full-text search
+
+## Formal specification
 
 ```
 predicates    = predicate *("," predicate)
