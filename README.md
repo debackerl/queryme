@@ -4,39 +4,42 @@ Structured language to embed complex queries in the query part of a URL.
 
 You can read the documention of the Go library online: http://godoc.org/github.com/debackerl/queryme/go
 
-[![Build Status](https://drone.io/github.com/debackerl/queryme/status.png)](https://drone.io/github.com/debackerl/queryme/latest)
+Continuous integration: [![Build Status](https://drone.io/github.com/debackerl/queryme/status.png)](https://drone.io/github.com/debackerl/queryme/latest)
 
 ## Example
 
 The following example JavaScript code:
 
 ```JavaScript
-var filter = QM.And(QM.Not(QM.Eq("type",[QM.String("foo"),QM.String("bar")])),QM.Fts("text","belgian chocolate"));
-var sort = QM.Sort(QM.Order("rooms",false),QM.Order("price"));
+var filter = QM.And(QM.Not(QM.Eq("type",[QM.String("image"),QM.String("video")])),QM.Fts("content","open source"));
+var sort = QM.Sort(QM.Order("relevance"),QM.Order("date",false));
 window.location.search = "?f=" + filter + "&s=" + sort;
 ```
 
 will generate the this query string
 
 ```
-?f=and(not(eq(type,'foo','bar')),fts(text,'belgian chocolate'))&s=!rooms,price
+?f=and(not(eq(type,'image','video')),fts(content,'open source'))&s=relevance,!date
 ```
 
 Once received by the server, the go library's ToSql function can check for any disallowed fields, and generate SQL and extract constants:
 
 ```go
 qs := NewFromURL(url)
-allowed_fields := []Field{"type","text","name","id"}
-sql, values := ToSql(qs.Predicate("f"), allowed_fields)
-fmt.Println(sql)
+allowed_fields := []Field{"type","content","id","author"}
+sqlWhere, values := PredicateToSql(qs.Predicate("f"), allowed_fields)
+sqlOrderBy := SortOrderToSql(qs.SortOrder("s"), allowed_fields)
+fmt.Println(sqlWhere)
 fmt.Println(values)
+fmt.Println(sqlOrderBy)
 ```
 
 will print the following
 
 ```
-((NOT (`type` IN (?,?))) AND MATCH (`text`) AGAINST (?))
-[]interface{}{"foo", "bar", "belgian chocolate"}
+((NOT (`type` IN (?,?))) AND MATCH (`content`) AGAINST (?))
+[]interface{}{"image", "video", "open source"}
+relevance, date DESC
 ```
 
 ## Data Types
@@ -44,10 +47,10 @@ will print the following
 The query language support all JSON data types with the addition of dates:
 
 * null value
-* boolean
+* booleans
 * numbers (double-precision and exact integers with up to 15 digits)
 * strings
-* dates (with millisecond precision)
+* dates (up to millisecond precision)
 
 ## Predicates
 
