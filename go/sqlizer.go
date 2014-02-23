@@ -6,12 +6,32 @@ import (
 	"strings"
 )
 
-func ToSql(predicate Predicate, allowedFields []Field) (sql string, values []interface{}) {
+// PredicateToSql converts a Predicate to its equivalent SQL form and extracts constant to a seperate array. Each referenced field is matched against a list of allowed fields.
+func PredicateToSql(predicate Predicate, allowedFields []Field) (sql string, values []interface{}) {
 	b := newQueryBuilder(allowedFields)
+
 	predicate.Accept(b)
-	sql = b.Sql()
-	values = b.Values()
-	return
+
+	return b.Sql(), b.Values()
+}
+
+// SortOrderToSql converts an array of SortOrder to its equivalent SQL form. Each referenced field is matched against a list of allowed fields.
+func SortOrderToSql(sortOrder []*SortOrder, allowedFields []Field) (sql string) {
+	b := newQueryBuilder(allowedFields)
+
+	for i, so := range sortOrder {
+		if i > 0 {
+			b.AppendSql(",")
+		}
+
+		b.AppendId(so.Field)
+
+		if !so.Ascending {
+			b.AppendSql(" DESC")
+		}
+	}
+
+	return b.Sql()
 }
 
 type queryBuilder struct {
@@ -72,25 +92,29 @@ func (b *queryBuilder) VisitNot(operand Predicate) {
 	b.AppendSql(")")
 }
 
-func (b *queryBuilder) VisitPredicates(sqlOperator string, operands []Predicate) {
+func (b *queryBuilder) VisitPredicates(sqlOperator string, defaultValue string, operands []Predicate) {
 	b.AppendSql("(")
-	for i, p := range operands {
-		if i > 0 {
-			b.AppendSql(" ")
-			b.AppendSql(sqlOperator)
-			b.AppendSql(" ")
+	if len(operands) > 0 {
+		for i, p := range operands {
+			if i > 0 {
+				b.AppendSql(" ")
+				b.AppendSql(sqlOperator)
+				b.AppendSql(" ")
+			}
+			p.Accept(b)
 		}
-		p.Accept(b)
+	} else {
+		b.AppendSql(defaultValue)
 	}
 	b.AppendSql(")")
 }
 
 func (b *queryBuilder) VisitAnd(operands []Predicate) {
-	b.VisitPredicates("AND", operands)
+	b.VisitPredicates("AND", "true", operands)
 }
 
 func (b *queryBuilder) VisitOr(operands []Predicate) {
-	b.VisitPredicates("OR", operands)
+	b.VisitPredicates("OR", "false", operands)
 }
 
 func (b *queryBuilder) VisitEq(field Field, operands []Value) {

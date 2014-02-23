@@ -98,7 +98,7 @@ func init() {
 	}
 }
 
-func FirstCharClass(s string) byte {
+func firstCharClass(s string) byte {
 	r, _ := utf8.DecodeRuneInString(s)
 	if r > 127 {
 		return 0
@@ -107,7 +107,7 @@ func FirstCharClass(s string) byte {
 	}
 }
 
-func CharClassDetector(min byte, max byte) func(r rune) bool {
+func charClassDetector(min byte, max byte) func(r rune) bool {
 	return func(r rune) bool {
 		i := int(r)
 		if i > 127 {
@@ -118,10 +118,12 @@ func CharClassDetector(min byte, max byte) func(r rune) bool {
 	}
 }
 
+// QueryString is a parsed query part of a URL.
 type QueryString struct {
 	fields map[string]string
 }
 
+// NewFromRawQuery creates a new QueryString from a raw query string.
 func NewFromRawQuery(rawQuery string) *QueryString {
 	qs := new(QueryString)
 	qs.fields = make(map[string]string)
@@ -134,7 +136,7 @@ func NewFromRawQuery(rawQuery string) *QueryString {
 		name := rawQuery[:i]
 		rawQuery = rawQuery[i+1:]
 
-		i = strings.IndexFunc(rawQuery, CharClassDetector(1, 1))
+		i = strings.IndexFunc(rawQuery, charClassDetector(1, 1))
 		var value string
 		if i == -1 {
 			value = rawQuery
@@ -153,10 +155,12 @@ func NewFromRawQuery(rawQuery string) *QueryString {
 	return qs
 }
 
+// NewFromRawQuery creates a new QueryString from an existing URL object.
 func NewFromURL(url *url.URL) *QueryString {
 	return NewFromRawQuery(url.RawQuery)
 }
 
+// Predicate parses the given component of the query as a predicate, then returns it.
 func (q *QueryString) Predicate(name string) (p Predicate, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -178,6 +182,7 @@ func (q *QueryString) Predicate(name string) (p Predicate, err error) {
 	return
 }
 
+// Predicate parses the given component of the query as a sort order, then returns it.
 func (q *QueryString) SortOrder(name string) (os []*SortOrder, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
@@ -267,7 +272,7 @@ func parsePredicate(s string) (p Predicate, n string) {
 func parsePredicates(s string) (ps []Predicate, n string) {
 	ps = make([]Predicate, 0, 4)
 
-	if len(s) > 0 && FirstCharClass(s) > 2 {
+	if len(s) > 0 && firstCharClass(s) > 2 {
 		n = s
 		for {
 			var operand Predicate
@@ -288,7 +293,7 @@ func parsePredicates(s string) (ps []Predicate, n string) {
 func parseValues(s string) (vs []Value, n string) {
 	vs = make([]Value, 0, 4)
 
-	if len(s) > 0 && FirstCharClass(s) > 2 {
+	if len(s) > 0 && firstCharClass(s) > 2 {
 		n = s
 		for {
 			var operand interface{}
@@ -313,7 +318,7 @@ func parseString(s string) (v string, n string) {
 
 	s = s[1:]
 
-	l := strings.IndexFunc(s, CharClassDetector(1, 2))
+	l := strings.IndexFunc(s, charClassDetector(1, 2))
 
 	if l == -1 {
 		l = len(s)
@@ -352,7 +357,7 @@ func parseValue(s string) (v Value, n string) {
 		case '\'':
 			v, n = parseString(s)
 		default:
-			if l = strings.IndexFunc(s, CharClassDetector(1, 2)); l == -1 {
+			if l = strings.IndexFunc(s, charClassDetector(1, 2)); l == -1 {
 				l = len(s)
 			}
 
@@ -439,9 +444,10 @@ func parseSortOrders(s string) (os []*SortOrder, n string) {
 func parseSortOrder(s string) (o *SortOrder, n string) {
 	o = new(SortOrder)
 
-	if r, l := utf8.DecodeRuneInString(s); r == '!' {
+	if r, _ := utf8.DecodeRuneInString(s); r == '!' {
+		s = s[1:]
+	} else {
 		o.Ascending = true
-		s = s[l:]
 	}
 
 	f, n := parseIdentifier(s)
@@ -454,7 +460,7 @@ func parseIdentifier(s string) (id string, n string) {
 		panic(IdentifierExpected)
 	}
 
-	i := strings.IndexFunc(s, CharClassDetector(1, 4))
+	i := strings.IndexFunc(s, charClassDetector(1, 4))
 
 	if i == 0 {
 		panic(IdentifierExpected)

@@ -2,6 +2,8 @@ Structured language to embed complex queries in the query part of a URL.
 
 **This API is still unstable**, but many unit tests have been written already.
 
+You can read the documention of the Go library online: http://godoc.org/github.com/debackerl/queryme/go
+
 ## Example
 
 The following example JavaScript code:

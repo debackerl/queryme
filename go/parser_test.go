@@ -26,7 +26,7 @@ func TestSortOrder(t *testing.T) {
 
 	so, err := qs.SortOrder("o")
 	assert.Equal(t, nil, err)
-	assert.Equal(t, []*SortOrder{&SortOrder{"name", false}}, so)
+	assert.Equal(t, []*SortOrder{&SortOrder{"name", true}}, so)
 
 	so, err = qs.SortOrder("a")
 	assert.Equal(t, []*SortOrder(nil), so)
@@ -141,11 +141,11 @@ func TestParseSortOrders(t *testing.T) {
 	assert.Equal(t, "", n)
 
 	os, n = parseSortOrders("brol")
-	assert.Equal(t, []*SortOrder{&SortOrder{"brol", false}}, os)
+	assert.Equal(t, []*SortOrder{&SortOrder{"brol", true}}, os)
 	assert.Equal(t, "", n)
 
 	os, n = parseSortOrders("brol,!zorg")
-	assert.Equal(t, []*SortOrder{&SortOrder{"brol", false},&SortOrder{"zorg", true}}, os)
+	assert.Equal(t, []*SortOrder{&SortOrder{"brol", true},&SortOrder{"zorg", false}}, os)
 	assert.Equal(t, "", n)
 
 	assert.Panic(t, IdentifierExpected, func() {
@@ -155,11 +155,11 @@ func TestParseSortOrders(t *testing.T) {
 
 func TestParseSortOrder(t *testing.T) {
 	o, n := parseSortOrder("brol")
-	assert.Equal(t, SortOrder{"brol", false}, *o)
+	assert.Equal(t, SortOrder{"brol", true}, *o)
 	assert.Equal(t, "", n)
 
 	o, n = parseSortOrder("!zorg,")
-	assert.Equal(t, SortOrder{"zorg", true}, *o)
+	assert.Equal(t, SortOrder{"zorg", false}, *o)
 	assert.Equal(t, ",", n)
 
 	assert.Panic(t, IdentifierExpected, func() {
