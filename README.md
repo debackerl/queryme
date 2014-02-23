@@ -4,6 +4,8 @@ Structured language to embed complex queries in the query part of a URL.
 
 You can read the documention of the Go library online: http://godoc.org/github.com/debackerl/queryme/go
 
+[![Build Status](https://drone.io/github.com/debackerl/queryme/status.png)](https://drone.io/github.com/debackerl/queryme/latest)
+
 ## Example
 
 The following example JavaScript code:
