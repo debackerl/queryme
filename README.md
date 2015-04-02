@@ -37,7 +37,7 @@ fmt.Println(sqlOrderBy)
 will print the following
 
 ```
-((NOT (`type` IN (?,?))) AND MATCH (`content`) AGAINST (?))
+((NOT `type` IN (?,?)) AND MATCH (`content`) AGAINST (?))
 []interface{}{"image", "video", "open source"}
 relevance, date DESC
 ```
@@ -93,7 +93,7 @@ date          = 4DIGIT "-" 2DIGIT "-" 2DIGIT *1("T" 2DIGIT ":" 2DIGIT ":" 2DIGIT
 
 fieldorders   = *1(fieldorder *("," fieldorder))
 fieldorder    = *1"!" field
-field         = string
+field         = *(unreserved / pct-encoded)
 
 unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
 pct-encoded   = "%" HEXDIG HEXDIG

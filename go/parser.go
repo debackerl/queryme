@@ -33,7 +33,7 @@ date          = 4DIGIT "-" 2DIGIT "-" 2DIGIT *1("T" 2DIGIT ":" 2DIGIT ":" 2DIGIT
 
 fieldorders   = *1(fieldorder *("," fieldorder))
 fieldorder    = *1"!" field
-field         = string
+field         = *(unreserved / pct-encoded)
 
 unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
 pct-encoded   = "%" HEXDIG HEXDIG
@@ -160,6 +160,12 @@ func NewFromURL(url *url.URL) *QueryString {
 	return NewFromRawQuery(url.RawQuery)
 }
 
+// Tests if specified name has been found in query string.
+func (q *QueryString) Contains(name string) bool {
+	_, ok := q.fields[name]
+	return ok
+}
+
 // Predicate parses the given component of the query as a predicate, then returns it.
 func (q *QueryString) Predicate(name string) (p Predicate, err error) {
 	defer func() {
@@ -176,7 +182,7 @@ func (q *QueryString) Predicate(name string) (p Predicate, err error) {
 	p, raw = parsePredicate(raw)
 	if len(raw) != 0 {
 		p = nil
-		panic(UnexpectedEndOfPredicate)
+		err = UnexpectedEndOfPredicate
 	}
 
 	return
@@ -198,7 +204,7 @@ func (q *QueryString) SortOrder(name string) (os []*SortOrder, err error) {
 	os, raw = parseSortOrders(raw)
 	if len(raw) != 0 {
 		os = nil
-		panic(UnexpectedEndOfSortOrders)
+		err = UnexpectedEndOfSortOrders
 	}
 
 	return
@@ -290,6 +296,14 @@ func parsePredicates(s string) (ps []Predicate, n string) {
 	return
 }
 
+func ParseValues(s string) ([]Value, error) {
+	vs, n := parseValues(s)
+	if n != "" {
+		return vs, EndOfStringExpected
+	}
+	return vs, nil
+}
+
 func parseValues(s string) (vs []Value, n string) {
 	vs = make([]Value, 0, 4)
 
@@ -335,6 +349,14 @@ func parseString(s string) (v string, n string) {
 
 	n = s[l:]
 	return
+}
+
+func ParseValue(s string) (Value, error) {
+	v, n := parseValue(s)
+	if n != "" {
+		return v, EndOfStringExpected
+	}
+	return v, nil
 }
 
 func parseValue(s string) (v Value, n string) {
@@ -455,12 +477,20 @@ func parseSortOrder(s string) (o *SortOrder, n string) {
 	return
 }
 
+func ParseIdentifier(s string) (Value, error) {
+	v, n := parseIdentifier(s)
+	if n != "" {
+		return v, EndOfStringExpected
+	}
+	return v, nil
+}
+
 func parseIdentifier(s string) (id string, n string) {
 	if len(s) == 0 {
 		panic(IdentifierExpected)
 	}
 
-	i := strings.IndexFunc(s, charClassDetector(1, 4))
+	i := strings.IndexFunc(s, charClassDetector(1, 3))
 
 	if i == 0 {
 		panic(IdentifierExpected)
