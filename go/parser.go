@@ -166,6 +166,11 @@ func (q *QueryString) Contains(name string) bool {
 	return ok
 }
 
+// Returns raw query string value.
+func (q *QueryString) Raw(name string) (string, bool) {
+	return q.fields[name]
+}
+
 // Predicate parses the given component of the query as a predicate, then returns it.
 func (q *QueryString) Predicate(name string) (p Predicate, err error) {
 	defer func() {
