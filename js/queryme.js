@@ -13,7 +13,7 @@ var QM = function() {
 	}
 
 	function escapeString(s) {
-		return encodeURIComponent(s).replace(/[!*'()]/g, escapeChar);
+		return encodeURIComponent(s).replace(/[()]/g, escapeChar);
 	}
 
 	return {

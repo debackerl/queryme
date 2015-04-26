@@ -28,7 +28,7 @@ value         = (null / boolean / number / string / date)
 null          = "null"
 boolean       = "true" / "false"
 number        = 1*(DIGIT / "." / "e" / "E" / "+" / "-")
-string        = "'" *(unreserved / pct-encoded) "'"
+string        = "$" *(unreserved / pct-encoded)
 date          = 4DIGIT "-" 2DIGIT "-" 2DIGIT *1("T" 2DIGIT ":" 2DIGIT ":" 2DIGIT *1("." 3DIGIT) "Z")
 
 fieldorders   = *1(fieldorder *("," fieldorder))
@@ -332,7 +332,7 @@ func parseValues(s string) (vs []Value, n string) {
 }
 
 func parseString(s string) (v string, n string) {
-	if len(s) == 0 || s[0] != '\'' {
+	if len(s) == 0 || s[0] != '$' {
 		panic(StringExpected)
 	}
 
@@ -344,12 +344,8 @@ func parseString(s string) (v string, n string) {
 		l = len(s)
 	}
 
-	if s[l - 1] != '\'' {
-		panic(EndOfStringExpected)
-	}
-
 	var err error
-	if v, err = url.QueryUnescape(s[:l-1]); err != nil {
+	if v, err = url.QueryUnescape(s[:l]); err != nil {
 		panic(err)
 	}
 
@@ -382,7 +378,7 @@ func parseValue(s string) (v Value, n string) {
 		case 'f':
 			n = parseLiteral(s, "false")
 			v = false
-		case '\'':
+		case '$':
 			v, n = parseString(s)
 		default:
 			if l = strings.IndexFunc(s, charClassDetector(1, 2)); l == -1 {

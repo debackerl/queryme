@@ -38,7 +38,7 @@ func TestParsePredicate(t *testing.T) {
 	assert.Equal(t, Ge{"age", 18.0}, p)
 	assert.Equal(t, "", n)
 
-	p, n = parsePredicate("fts(title,'belgian chocolate'),")
+	p, n = parsePredicate("fts(title,$belgian chocolate),")
 	assert.Equal(t, Fts{"title", "belgian chocolate"}, p)
 	assert.Equal(t, ",", n)
 
@@ -46,11 +46,11 @@ func TestParsePredicate(t *testing.T) {
 	assert.Equal(t, Eq{"type", []Value{4.0, 5.0}}, p)
 	assert.Equal(t, ",", n)
 
-	p, n = parsePredicate("not(fts(title,'belgian chocolate'))")
+	p, n = parsePredicate("not(fts(title,$belgian chocolate))")
 	assert.Equal(t, Not{Fts{"title", "belgian chocolate"}}, p)
 	assert.Equal(t, "", n)
 
-	p, n = parsePredicate("and(ge(age,18),not(fts(title,'belgian chocolate')))")
+	p, n = parsePredicate("and(ge(age,18),not(fts(title,$belgian chocolate)))")
 	assert.Equal(t, And{Ge{"age", 18.0},Not{Fts{"title", "belgian chocolate"}}}, p)
 	assert.Equal(t, "", n)
 
@@ -60,15 +60,15 @@ func TestParsePredicate(t *testing.T) {
 }
 
 func TestParseString(t *testing.T) {
-	v, n := parseString("'',")
+	v, n := parseString("$,")
 	assert.Equal(t, "", v)
 	assert.Equal(t, ",", n)
 
-	v, n = parseString("'ok'")
+	v, n = parseString("$ok")
 	assert.Equal(t, "ok", v)
 	assert.Equal(t, "", n)
 
-	v, n = parseString("'%C3%A0'")
+	v, n = parseString("$%C3%A0")
 	assert.Equal(t, "à", v)
 	assert.Equal(t, "", n)
 }
@@ -98,15 +98,15 @@ func TestParseValue(t *testing.T) {
 	assert.Equal(t, false, v)
 	assert.Equal(t, ",", n)
 
-	v, n = parseValue("'',")
+	v, n = parseValue("$,")
 	assert.Equal(t, "", v)
 	assert.Equal(t, ",", n)
 
-	v, n = parseValue("'ok'")
+	v, n = parseValue("$ok")
 	assert.Equal(t, "ok", v)
 	assert.Equal(t, "", n)
 
-	v, n = parseValue("'%C3%A0'")
+	v, n = parseValue("$%C3%A0")
 	assert.Equal(t, "à", v)
 	assert.Equal(t, "", n)
 
