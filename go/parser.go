@@ -62,7 +62,7 @@ func init() {
 	characters[int('&')] = 1
 
 	characters[int('!')] = 2
-	characters[int('$')] = 2
+	characters[int('\'')] = 2
 	characters[int('(')] = 2
 	characters[int(')')] = 2
 	characters[int('*')] = 2
@@ -72,7 +72,7 @@ func init() {
 	characters[int('?')] = 2
 	characters[int('@')] = 2
 
-	characters[int('\'')] = 3
+	characters[int('$')] = 3
 	characters[int('+')] = 3
 	characters[int(':')] = 3
 
@@ -433,7 +433,7 @@ func parseValue(s string) (v Value, n string) {
 }
 
 func parseLiteral(s string, expected string) (n string) {
-	if s[:len(expected)] != expected {
+	if len(s) < len(expected) || s[:len(expected)] != expected {
 		panic(fmt.Errorf("expected: %q", expected))
 	}
 
