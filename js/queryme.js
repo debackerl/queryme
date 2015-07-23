@@ -88,7 +88,7 @@ var QM = function() {
 
 		String: function(string) {
 			if(string === null) return QM.Null;
-			return "'" + escapeString(string) + "'";
+			return "$" + escapeString(string);
 		},
 
 		Date: function(date) {
