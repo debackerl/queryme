@@ -19,7 +19,7 @@ window.location.search = "?f=" + filter + "&s=" + sort;
 will generate the this query string
 
 ```
-?f=and(not(eq(type,'image','video')),fts(content,'open source'))&s=relevance,!date
+?f=and(not(eq(type,$image,$video)),fts(content,$open source))&s=relevance,!date
 ```
 
 Once received by the server, the go library's ToSql function can check for any disallowed fields, and generate SQL and extract constants:
