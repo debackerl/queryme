@@ -88,7 +88,7 @@ value         = (null / boolean / number / string / date)
 null          = "null"
 boolean       = "true" / "false"
 number        = 1*(DIGIT / "." / "e" / "E" / "+" / "-")
-string        = "'" *(unreserved / pct-encoded) "'"
+string        = "$" *(unreserved / pct-encoded)
 date          = 4DIGIT "-" 2DIGIT "-" 2DIGIT *1("T" 2DIGIT ":" 2DIGIT ":" 2DIGIT *1("." 3DIGIT) "Z")
 
 fieldorders   = *1(fieldorder *("," fieldorder))
