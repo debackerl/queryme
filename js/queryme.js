@@ -20,7 +20,7 @@ var QM = function() {
 		Sort: function(orders) {
 			if(orders.constructor != Array)
 				orders = arguments;
-			return orders.join();
+			return Array.prototype.join(orders, "");
 		},
 
 		Order: function(field, ascending) {
