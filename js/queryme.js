@@ -19,7 +19,7 @@ var QM = function() {
 	return {
 		Sort: function(orders) {
 			if(orders.constructor != Array)
-				orders = arguments;
+				orders = (arguments.length === 1?[arguments[0]]:Array.apply(null, arguments));
 			return Array.prototype.join.call(orders, "");
 		},
 
@@ -36,13 +36,13 @@ var QM = function() {
 
 		And: function(predicates) {
 			if(predicates.constructor != Array)
-				predicates = arguments;
+				predicates = (arguments.length === 1?[arguments[0]]:Array.apply(null, arguments));
 			return "and(" + predicates.join() + ")";
 		},
 
 		Or: function(predicates) {
 			if(predicates.constructor != Array)
-				predicates = arguments;
+				predicates = (arguments.length === 1?[arguments[0]]:Array.apply(null, arguments));
 			return "or(" + predicates.join() + ")";
 		},
 
